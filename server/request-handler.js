@@ -1,35 +1,36 @@
-/* You should implement your request handler function in this file.
- * And hey! This is already getting passed to http.createServer()
- * in basic-server.js. But it won't work as is.
- * You'll have to figure out a way to export this function from
- * this file and include it in basic-server.js so that it actually works.
- * *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html. */
-module.exports.handleRequest = function(request, response) {
-  /* the 'request' argument comes from nodes http module. It includes info about the
-  request - such as what URL the browser is requesting. */
+var messages = [];
 
-  /* Documentation for both request and response can be found at
-   * http://nodemanual.org/0.8.14/nodejs_ref_guide/http.html */
+module.exports.handleRequest = function(request, response) {
+  var headers = defaultCorsHeaders;
+  var statusCode = 200;
+
+  headers['Content-Type'] = 'application/json';
+
+  response.end();
+  /* .writeHead() tells our server what HTTP status code to send back */
+  response.writeHead(statusCode, headers);
+//option2
+// module.exports = function handleRequest(request,response) {
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 200;
-
-  /* Without this line, this server wouldn't work. See the note
-   * below about CORS. */
-  var headers = defaultCorsHeaders;
-
-  headers['Content-Type'] = "text/plain";
-
-  /* .writeHead() tells our server what HTTP status code to send back */
-  response.writeHead(statusCode, headers);
-
-  /* Make sure to always call response.end() - Node will not send
-   * anything back to the client until you do. The string you pass to
-   * response.end() will be the body of the response - i.e. what shows
-   * up in the browser.*/
-  response.end("Hello, World!");
+  if (request.method === 'GET') {
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify({results: messages}));
+  } else if (request.method === 'POST') {
+      var data = '';
+    request.on('data', function(chunk){
+      data += chunk;
+    });
+    request.on('end', function(){
+      var message = JSON.parse(data);
+      messages.push(message);
+      response.end(JSON.stringify(message));
+    });
+  }
 };
+
+
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).
  * This CRUCIAL code allows this server to talk to websites that
