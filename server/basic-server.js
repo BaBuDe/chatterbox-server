@@ -26,7 +26,6 @@ var server = http.createServer(request);
 //option2
 //var server = http.createServer(requestHandler.handler);
 
-
 console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
 
